@@ -45,8 +45,8 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
    // 1) get user details form frontend 
-   const {fullname, email, username, password} = req.body
-   console.log("email: ", email);
+   const {fullname, email, username, password} = req.body;
+   // console.log("email: ", email);
 
 
 
@@ -56,9 +56,9 @@ const registerUser = asyncHandler( async (req, res) => {
    // check validation
 
    if (
-      [fullname, email, username, password].some((field) => {            //ye jo some h ye true return kr dega aager thik hoga toh
-         field?.trim() === "";
-      })
+      [fullname, email, username, password].some((field) =>             //ye jo some h ye true return kr dega aager thik hoga toh
+         field?.trim() === ""
+      )
    ) {
       throw new ApiError(400, "All fields are required");
       
@@ -70,7 +70,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
    // check if user already exists: username, email
    // const existedUser = user.findOne({email})            aager ek ho he krna ho toh 
-   const existedUser = user.findOne({
+   const existedUser = await User.findOne({
       $or: [{username}, {email}],
    })
    
@@ -78,18 +78,33 @@ const registerUser = asyncHandler( async (req, res) => {
       throw new ApiError(409, "User with email and Username already exist")
    }
 
+   console.log(req.files); //jo bhi file kai under hoge vo sub dai dega 
+
+
+
+
 
 
 
 
    // upload bhi kr deya or aab check bhi kr lo ke avatar aaya ke ne
    const avatarLocalPath = req.files?.avatar[0]?.path;
-   const coverImageLocalPath = req.files?.coverImage[0]?.path;
+   // const coverImageLocalPath = req.files?.coverImage[0]?.path;        esko comment krange 
+
+   // aab krange standard tarike sai coverImage ko ne aager kuch ne hua toh "" ye show kr dena undefined error show maat krna
+
+   let coverImageLocalPath;
+   if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+      coverImageLocalPath = req.files.coverImage[0]?.path;
+   }
+
 
    if (!avatarLocalPath) {
       throw new ApiError(400, "Avatar file is required")
    }
    
+
+
 
 
 
@@ -126,12 +141,12 @@ const registerUser = asyncHandler( async (req, res) => {
    // aab ye bhi check krna hoga ke create hua ke ne hua
    //esai ek specific _id hote h esai hum user ko find krange ke vo exist krta h ke ne krta
    // hum .select ka use bhi kr sakte hain ke hume kya kya ne chahiye, string kai under   
-   const createduser = await user.findById (user._id).select(
+   const createdUser = await User.findById(user._id).select(
       // ye doh field nhi ayenge
     "-password -refreshToken"
    )  
 
-   if (!createduser) {
+   if (!createdUser) {
       throw new ApiError(500, "Something went wrong while registering the user")
    }
 
@@ -139,9 +154,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
    // aab last mai hum response bhejange ke user register ho gya kya successfully
    return res.status(201).json(
-      new ApiResponse(200, createduser, "User registered successfully")
+      new ApiResponse(200, createdUser, "User registered successfully")
    )
 
 })
 
-export {registerUser}
+export {registerUser};

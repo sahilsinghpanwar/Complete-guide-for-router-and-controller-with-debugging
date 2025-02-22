@@ -104,3 +104,18 @@ step: 8 remove password and refresh token from response bhi kr deya .select ka u
 
 step: 10 return response -------> (aager create ho gya h toh return response, else return error)  
 import kr dange ApiResponse ko user.controller.js mai
+
+
+
+
+==========================================video = 14================================================
+aab hum postman per data, pdf , images bhejenge or vo images, pdf mare public folder mai aa jayega 
+ hum postman mai ja kr body fir form-data mai ja kr key value fill kr dange
+
+
+
+ step:1 aab jub kaam ho jayega toh hum cloudinary.js mai jo console.log mai response.url h usko comment kr dange 
+ or aabb vaise bhi file successfully upload ho gye h toh aab file ko unlinkSync kr dange file ko unlink kr deya file ko (fs.unlinkSync(localFilePath))
+
+
+ step-2 aab hum ho coverImage h usko professionally solve krange, ke aager user nai coverImage mai kuch ne bheja toh us error ko kaise solve krange. (user.controller.js)
