@@ -1,11 +1,27 @@
 import { Router } from "express";
 import {registerUser} from "../controllers/user.controller.js";
 
+// video-13 ka h ye
+import {upload} from "../middlewares/multer.middleware.js";
+
 const router = Router();
 
-router.route("/register").post(registerUser);   
+router.route("/register").post(
+  upload.fields([
+    {
+      name: "avatar",    //(file ka naam)
+      maxCount: 1        //kitne files h
+    },
+    {
+      name: "coverImage",
+      maxCount: 1
+    }
+  ])
+)   
 
-                  // prefix    route
+
+
+                              // prefix    route
 // http://localhost:8000/api/v1/users/register
 
 

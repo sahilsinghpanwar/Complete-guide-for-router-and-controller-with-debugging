@@ -45,7 +45,7 @@ const userSchema = new Schema(
 
         ],
 
-        passsword: {
+        password: {
             type: String,
             required: [true, 'password is required'],
         },
@@ -63,16 +63,16 @@ const userSchema = new Schema(
 
 
 // jub bhi data save hora ho usai pahle muje ye krna h  (hooks)
-// but esmai toh hum passsword encrypt kr rhe h
+// but esmai toh hum password encrypt kr rhe h
 userSchema.pre("save", async function (next) {
 
-// aab esmai ek problem h aager kisi nai maan lo ke avatar mai kuch change keya toh ye passsword ko change kr dega toh hum else statement use krange ke aager mai tume passsword field ke modification bheju toh he tume modification krna h passsword  mai . aager koi modification nhi hua password mai toh hum if statement use kr rhe h niche toh vo sidhe next() kr dege
+// aab esmai ek problem h aager kisi nai maan lo ke avatar mai kuch change keya toh ye password ko change kr dega toh hum else statement use krange ke aager mai tume password field ke modification bheju toh he tume modification krna h password  mai . aager koi modification nhi hua password mai toh hum if statement use kr rhe h niche toh vo sidhe next() kr dege
 
     if (!this.isModified("password")) return next();
 
     // kisko hash krna hai or kitne round mai krna h
     else{
-    this.passsword = bcrypt.hash(this.passsword, 10);
+    this.password = await bcrypt.hash(this.password, 10);
     next();
 }
 })
