@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from "express"; //(router express ke through he aayega kyuke server ke baat h na)
 import {registerUser} from "../controllers/user.controller.js";
 
 // video-13 ka h ye

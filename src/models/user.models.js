@@ -62,28 +62,26 @@ const userSchema = new Schema(
 )
 
 
-// jub bhi data save hora ho usai pahle muje ye krna h  (hooks)
-// but esmai toh hum password encrypt kr rhe h
+
 userSchema.pre("save", async function (next) {
 
-// aab esmai ek problem h aager kisi nai maan lo ke avatar mai kuch change keya toh ye password ko change kr dega toh hum else statement use krange ke aager mai tume password field ke modification bheju toh he tume modification krna h password  mai . aager koi modification nhi hua password mai toh hum if statement use kr rhe h niche toh vo sidhe next() kr dege
+
 
     if (!this.isModified("password")) return next();
 
-    // kisko hash krna hai or kitne round mai krna h
     else{
     this.password = await bcrypt.hash(this.password, 10);
     next();
 }
 })
 
-// we design custom methods
+
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password)
 }
 
 
-// for JWT
+
 userSchema.methods.generateAccessToken = function () {
    return jwt.sign(
     {
