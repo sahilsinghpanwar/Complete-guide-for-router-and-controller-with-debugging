@@ -26,13 +26,10 @@ const registerUser = asyncHandler( async (req, res) => {
    
    
    if (
-      [fullname, email, username, password].some((field) =>             
-         field?.trim() === ""
-      )
-   ) {
-      throw new ApiError(400, "All fields are required");
-      
-   }
+      [fullname, email, username, password].some((field) => field?.trim() === "")
+  ) {
+      throw new ApiError(400, "All fields are required")
+  }
 
 
 
@@ -58,7 +55,7 @@ const registerUser = asyncHandler( async (req, res) => {
    
    let coverImageLocalPath;
    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
-      coverImageLocalPath = req.files.coverImage[0]?.path;
+      coverImageLocalPath = req.files.coverImage[0].path;
    }
 
 
@@ -305,9 +302,158 @@ try {
 
 })
 
+
+
+
+// kuch basics activities hote h jo likhne hote h jub bhi user banate h
+const ChangeCurrentPassword = asyncHandler(async (req, res) => {
+   
+   // user sai current password change krana h  (check karange ke user pahle se login h ya ne cookies h ye ne)
+
+
+   // aab user sai password change krate vakat user sai kitne field lane hote h
+   const {oldPassword, newPassword} = req.body
+
+
+   const user = await User.findById(req.user?._id)
+   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+
+   if (!isPasswordCorrect) {
+      throw new ApiError(400, "Invalid old password");
+
+   }
+
+   user.password = newPassword
+    await user.save({validateBeforeSave: false})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
+
+})
+
+
+
+
+// aager user loggedin h toh usko current user likhange
+const getCurrentUser= asyncHandler(async (req, res) => {
+   return res
+   .status(200)
+   .json(200, req.user, "current user fetched successfully")
+})
+
+
+// abb mai kya kya allow krunge user ko change krne k liye 
+const updateAccountDetails = asyncHandler(async(req, res) => {
+   const {fullname, email} = req.body
+
+   if (!fullname || !email) {
+      throw new ApiError(400, "All fields are required")
+   }
+
+   // abb fullname or email ko kaise update krange
+
+   const user = User.findByIdAndUpdate(
+      req.user?._id,
+      {
+        $set: {
+            fullname : fullname,
+            email: email,
+         }
+      },
+
+      // update hone k baad information return hote h
+      {new: true}
+   ).select("-password")
+
+   return res
+   .status(200)
+   .json(new ApiResponse (200, user, "Account details updated successfully"))
+
+})
+
+
+// aab hum dekhange ke files kis terha se upload krne cahiye emai doh middleware ka use hoge multer ka or jo login hoga, kyuke vo he access kr sakta h files access
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+   // yaha hum ek he file le rhe h
+ const avatarLocalPath = req.file?.path
+
+ if (!avatarLocalPath) {
+   throw new ApiError(400, "Avatar file is missing");
+ }
+
+//  or cloundinary per upload kr do file ko
+const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+if(!avatar.url){
+throw new ApiError(400, "Error while uploading on avatar");
+}
+
+const user = await User.findByIdAndUpdate(
+   req.user?._id,
+
+   {
+$set: {
+   avatar: avatar.url
+}
+   },
+
+   {new: true}
+).select("-password")
+
+return res
+.status(200)
+.json(
+   new ApiResponse(200, user, "Avatar image updated successfully")
+)
+})
+
+
+// abb update krange coverImage
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+   // yaha hum ek he file le rhe h
+ const coverImageLocalPath = req.file?.path
+
+ if (!coverImageLocalPath) {
+   throw new ApiError(400, "cover image file is missing");
+ }
+
+//  or cloundinary per upload kr do file ko
+const avatar = await uploadOnCloudinary(coverImageLocalPath)
+
+if(!coverImage.url){
+throw new ApiError(400, "Error while uploading on avatar");
+}
+
+const user = await User.findByIdAndUpdate(
+   req.user?._id,
+
+   {
+$set: {
+   coverImage: coverImage.url
+}
+   },
+
+   {new: true}
+).select("-password")
+
+return res
+.status(200)
+.json(
+   new ApiResponse(200, user, "Cover image updated successfully")
+)
+})
+
+
 export {
    registerUser,
    loginUser,
    logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    ChangeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage
 };
